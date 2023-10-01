@@ -1,0 +1,35 @@
+---
+title: "Bain and BFpack"
+author: "B.A.E"
+format: pdf
+editor: visual
+---
+
+Bain is short for Bayesian informative hypothesis testing and works by providing bain() with a model and a collection of hypotheses that will then be given bayes factors. Let´s create data for a simple regression model and specify hypotheses for different beta-coefficients.
+
+```{r}
+library(bain)
+library(faux)
+
+# We  generate some data
+data <- rnorm_multi(100, 2, r = .5, varnames = c('x', 'y'))
+
+# We specify our model
+model <- lm(y~x, data)
+
+# We specify our informative hypotheses, we have a point and two ranges
+hypotheses <- c('x = .5; x < .5; x > .5')
+
+# We then use bain to evaluate the likelihood of the hypotheses given the data
+bain(model, hypothesis = hypotheses)
+```
+
+Nice, we get the bayes factors for the different values of the beta coefficient of x. That being the increase in x for each increase in y. We find that our point value hypothesis of x = .5 to be the most likely hypothesis with a posterior model probability of roughly .8 compared to our other hypotheses. Compared to it's compliment, hypothesis 1(x = .5) is 7 times more likely given the data. The other hypotheses does not provide good evidence compared to the null hypothesis. Let´s see what happens if we change our first hypothesis to have a less accurate point estimate.
+
+```{r}
+hypotheses_2 <- c('x = .7; x < .7; x > .7')
+
+bain(model, hypothesis = hypotheses_2)
+```
+
+interesting, even though we have worse accuracy we do get good information about what model ´s that are likely. Hypothesis 2 now gives solid evidence that it is unlikely that the true beta value is more than .7. Even though hypothesis 2 is less likely than hypothesis 1, we are quite confident that the true beta coefficient isnt larger than .7, but it is probably not close to 0 either.
